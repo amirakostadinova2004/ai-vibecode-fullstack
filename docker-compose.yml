@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: vibecode_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: vibecode
+      MYSQL_USER: vibecode_user
+      MYSQL_PASSWORD: vibecode_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    container_name: vibecode_php
+    working_dir: /var/www/html
+    command: php-fpm
+    volumes:
+      - ./backend:/var/www/html:rw
+    depends_on:
+      - mysql
+      - redis
+
+  nginx:
+    image: nginx:alpine
+    container_name: vibecode_nginx
+    ports:
+      - "8201:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  frontend:
+    image: node:20
+    container_name: vibecode_frontend
+    working_dir: /usr/src/app
+    volumes:
+      - ./frontend:/usr/src/app
+    ports:
+      - "8200:3000"
+    command: bash -c "npm install && npm run dev"
+
+  redis:
+    image: redis:7-alpine
+    container_name: vibecode_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  db_data:
+  redis_data:
