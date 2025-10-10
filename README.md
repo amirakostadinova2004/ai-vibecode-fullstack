@@ -31,7 +31,7 @@
 
 ### 1. Клониране на проекта
 ```bash
-git clone <repository-url>
+git clone https://github.com/amirakostadinova2004/ai-vibecode-fullstack.git
 cd ai-vibecode-fullstack
 ```
 
