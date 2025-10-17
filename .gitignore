@@ -68,7 +68,7 @@ dist
 
 # Gatsby files
 .cache/
-public
+# public (commented out to allow Laravel public directory)
 
 # Storybook build outputs
 .out

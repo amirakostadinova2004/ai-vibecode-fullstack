@@ -1,0 +1,92 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: vibecode_mysql_prod
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secure_root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-vibecode}
+      MYSQL_USER: ${MYSQL_USER:-vibecode_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secure_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - vibecode_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: vibecode_redis_prod
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - vibecode_network
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    container_name: vibecode_php_prod
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php-fpm
+    volumes:
+      - ./backend:/var/www/html:rw
+      - php_sessions:/var/lib/php/sessions
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    networks:
+      - vibecode_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: vibecode_nginx_prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./backend:/var/www/html
+      - ./nginx.prod.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - php
+    networks:
+      - vibecode_network
+
+  frontend:
+    image: node:20-alpine
+    container_name: vibecode_frontend_prod
+    restart: unless-stopped
+    working_dir: /usr/src/app
+    volumes:
+      - ./frontend:/usr/src/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm ci --only=production && npm run build && npm start"
+    networks:
+      - vibecode_network
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  php_sessions:
+    driver: local
+
+networks:
+  vibecode_network:
+    driver: bridge

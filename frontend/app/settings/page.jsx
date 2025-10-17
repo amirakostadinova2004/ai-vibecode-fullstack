@@ -66,9 +66,7 @@ export default function SettingsPage() {
   };
 
   const generateSecret = async () => {
-    console.log("generateSecret function called");
     const token = localStorage.getItem("token");
-    console.log("Token:", token ? "exists" : "missing");
     
     if (!token) {
       setError("Please log in first");
@@ -80,9 +78,7 @@ export default function SettingsPage() {
     
     // Test API connectivity first
     try {
-      console.log("Testing API connectivity...");
       const testResponse = await fetch("http://localhost:8201/api/status");
-      console.log("API Status:", testResponse.status);
     } catch (testError) {
       console.error("API connectivity test failed:", testError);
       setError(`Cannot connect to API: ${testError.message}`);
@@ -99,12 +95,9 @@ export default function SettingsPage() {
           "Accept": "application/json",
         },
       });
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers);
       
       if (response.ok) {
         const data = await response.json();
-        console.log("Generated secret data:", data);
         
         // Convert the otpauth URL to a QR code image URL
         const qrCodeImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr_code_url)}`;
@@ -143,7 +136,6 @@ export default function SettingsPage() {
     setIsEnabling(true);
     
     try {
-      console.log("Enabling 2FA with:", { secret: secretKey, code: verificationCode });
       
       const response = await fetch("http://localhost:8201/api/two-factor/enable", {
         method: "POST",
@@ -158,7 +150,6 @@ export default function SettingsPage() {
       });
 
       const data = await response.json();
-      console.log("Enable 2FA response:", data);
       
       if (response.ok) {
         setRecoveryCodes(data.recovery_codes);

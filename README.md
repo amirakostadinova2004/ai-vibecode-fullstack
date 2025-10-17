@@ -137,7 +137,7 @@ docker-compose exec frontend npm install package-name
 ```bash
 # Аутентикация
 TOKEN=$(curl -s -X POST -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password"}' \
+  -d '{"email":"admin@admin.local","password":"password"}' \
   http://localhost:8201/api/login | jq -r '.token')
 
 # Добавяне на инструмент
@@ -210,10 +210,10 @@ curl -X POST -H "Authorization: Bearer $TOKEN" \
 
 | Email | Парола | Роля | Описание |
 |-------|--------|------|----------|
+| ivan@admin.local | password | owner | Собственик |
 | admin@admin.local | password | admin | Администратор |
-| test@example.com | password | user | Тестов потребител |
-| frontend@dev.local | password | frontend | Frontend разработчик |
-| backend@dev.local | password | backend | Backend разработчик |
+| elena@frontend.local | password | frontend | Frontend разработчик |
+| petar@backend.local | password | backend | Backend разработчик |
 
 ### Middleware защита
 

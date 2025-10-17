@@ -23,15 +23,15 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/password/send-reset-link', [PasswordResetController::class, 'sendResetLink']);
 Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
 
+// AI Tools routes - public (no auth required)
+Route::get('/ai-tools/categories', [AiToolController::class, 'categories']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
     
     // Password change route (authenticated)
     Route::post('/password/change', [PasswordResetController::class, 'changePassword']);
-    
-    // AI Tools routes - public (no auth required)
-    Route::get('/ai-tools/categories', [AiToolController::class, 'categories']);
     
     // AI Tools routes - available to all authenticated users
     Route::get('/ai-tools', [AiToolController::class, 'index']);
